@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feasibility Study Blok M</title>
+<meta name="description" content="Dashboard studi kelayakan Kawasan Blok M: aksesibilitas, walkability, keragaman fungsi, dan kenyamanan termal.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect x=%221%22 y=%221%22 width=%2214%22 height=%2214%22 rx=%224%22 fill=%22%23C2441F%22/%3E%3Ctext x=%228%22 y=%2212%22 font-size=%2210%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22 font-weight=%22900%22%3EM%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap">
+<style>
+:root{
+  --bg:#FCFCFB;--kartu:#F4F3F1;--kartu2:#ECEBE8;--putih:#fff;--ink:#1F1F1F;--ink2:#474747;--redam:#6A6763;--garis:#E2E1DE;
+  --aksen:#C2441F;--bata2:#E4572E;--tint:#FBE9E2;
+  --akses:#2F6BD8;--walk:#2E9A6A;--variety:#7C4DCC;--termal:#E4572E;
+  --c:var(--aksen);
+  --ease:cubic-bezier(.3,1.25,.5,1);--ease2:cubic-bezier(.65,0,.35,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg)}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden}
+h1,h2,h3,p{margin:0}
+button{font-family:inherit;color:inherit}
+.app{display:grid;grid-template-rows:auto 1fr;height:100vh;padding:18px 22px 20px;gap:14px}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+.judul{display:flex;flex-direction:column;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:var(--tint);border-radius:999px;padding:4px 13px;font:800 12.5px 'Nunito';color:var(--ink)}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--aksen);animation:denyut 1.8s infinite}
+@keyframes denyut{0%{box-shadow:0 0 0 0 rgba(194,68,31,.5)}70%{box-shadow:0 0 0 7px rgba(194,68,31,0)}100%{box-shadow:0 0 0 0 rgba(194,68,31,0)}}
+h1{font-size:34px;font-weight:900;letter-spacing:-.015em;line-height:1}
+h1 span{color:var(--aksen)}
+.kanan-head{display:flex;gap:10px;align-items:center}
+.skor-total{display:flex;align-items:center;gap:12px;background:var(--kartu);border-radius:18px;padding:8px 16px 8px 8px}
+.skor-total .angka{font-size:26px;font-weight:900;line-height:1}
+.skor-total .kecil{display:block}
+.tbl{border:0;background:var(--kartu);border-radius:999px;padding:9px 16px;font:800 13px 'Nunito';cursor:pointer;display:inline-flex;gap:7px;align-items:center;transition:background .2s}
+.tbl:hover{background:var(--kartu2)}
+.tbl:focus-visible,.tab:focus-visible,.ikon-tbl:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.kecil{font:700 12.5px 'Nunito';color:var(--redam)}
+
+/* ---------- main ---------- */
+main{display:grid;grid-template-columns:232px minmax(0,1fr) 400px;gap:14px;min-height:0}
+nav{display:flex;flex-direction:column;gap:8px;min-height:0}
+.tab{position:relative;display:grid;grid-template-columns:46px 1fr;align-items:center;gap:10px;border:0;background:var(--kartu);border-radius:18px;padding:10px 12px 10px 10px;text-align:left;cursor:pointer;transition:transform .35s var(--ease),background .25s}
+.tab:hover{transform:translateX(3px);background:var(--kartu2)}
+.tab.on{background:var(--putih);box-shadow:0 0 0 2px var(--c) inset,0 8px 22px -14px rgba(0,0,0,.35)}
+.tab b{display:block;font-size:15px;font-weight:900;line-height:1.1}
+.tab .kecil{font-size:11.5px}
+.tab .no{position:absolute;right:12px;top:9px;font:900 10.5px 'Nunito';color:#A9A6A1}
+.nav-catatan{margin-top:auto;background:var(--kartu);border-radius:18px;padding:12px 14px;font:600 12px/1.45 'Nunito';color:var(--ink2)}
+.nav-catatan b{font-weight:900}
+
+/* ---------- peta ---------- */
+.peta-kartu{position:relative;background:#EDEBE7;border-radius:24px;overflow:hidden;min-height:0;isolation:isolate}
+.viewport{position:absolute;inset:0;perspective:1800px;overflow:hidden;cursor:grab;touch-action:none}
+.viewport.seret{cursor:grabbing}
+.tilt{position:absolute;inset:0;transform-origin:50% 55%;transition:transform 1.1s var(--ease2);transform-style:preserve-3d}
+.tilt.miring{transform:rotateX(52deg) rotateZ(-16deg) scale(.92)}
+.dunia{position:absolute;left:0;top:0;width:1400px;height:717px;transform-origin:0 0;will-change:transform}
+.dunia>*{position:absolute;left:0;top:0}
+.dunia img{user-select:none;-webkit-user-drag:none;pointer-events:none}
+#base{width:1400px;height:717px;transition:opacity .6s}
+#sat{transition:opacity .7s;opacity:0}
+.mode-sat #sat{opacity:1}
+.mode-sat #base{opacity:.55}
+.mode-osm #base{opacity:0}
+#base2{width:1400px;height:717px;opacity:0;transition:opacity .6s}
+.mode-osm #base2{opacity:1}
+#lapis{width:1400px;height:717px;transition:opacity .5s;mix-blend-mode:multiply}
+#fx,#svg{width:1400px;height:717px;pointer-events:none}
+.tilt.miring .dunia{box-shadow:0 60px 80px -30px rgba(40,30,20,.45)}
+
+.kontrol{position:absolute;right:14px;top:14px;display:flex;flex-direction:column;align-items:flex-end;gap:8px;z-index:3}
+.grup{display:flex;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-radius:14px;padding:4px;gap:2px;box-shadow:0 6px 18px -10px rgba(0,0,0,.3)}
+.grup.v{flex-direction:column}
+.ikon-tbl{border:0;background:none;border-radius:10px;min-width:34px;height:32px;padding:0 10px;font:800 12px 'Nunito';cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;color:var(--ink2);transition:background .2s,color .2s}
+.ikon-tbl:hover{background:var(--kartu)}
+.ikon-tbl.on{background:var(--ink);color:#fff}
+
+.legenda{position:absolute;left:14px;top:14px;z-index:3;background:rgba(255,255,255,.93);backdrop-filter:blur(8px);border-radius:16px;padding:11px 14px;max-width:320px;box-shadow:0 6px 18px -10px rgba(0,0,0,.3);transition:opacity .3s}
+.legenda h3{font-size:14px;font-weight:900;margin-bottom:6px}
+.leg-skala{height:10px;border-radius:6px;margin:6px 0 4px}
+.leg-teks{display:flex;justify-content:space-between;font:700 11px 'Nunito';color:var(--redam)}
+.leg-item{display:flex;align-items:center;gap:7px;font:700 12px 'Nunito';color:var(--ink2);margin:3px 0}
+.leg-item i{width:12px;height:12px;border-radius:4px;flex:none}
+.leg-item s{text-decoration:none;margin-left:auto;font-weight:900;color:var(--ink)}
+
+.waktu{position:absolute;left:14px;right:14px;bottom:14px;z-index:3;display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:12px;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-radius:18px;padding:9px 14px 9px 9px;box-shadow:0 6px 18px -10px rgba(0,0,0,.3)}
+.main-tbl{width:38px;height:38px;border-radius:50%;border:0;background:var(--ink);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.jam{font:900 22px 'Nunito';min-width:72px;font-variant-numeric:tabular-nums}
+.jam small{display:block;font:700 11px 'Nunito';color:var(--redam)}
+.rel{position:relative;height:38px}
+.rel svg{position:absolute;inset:0;width:100%;height:100%}
+input[type=range]{position:absolute;left:0;right:0;bottom:0;width:100%;margin:0;appearance:none;background:transparent;height:38px;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:38px;background:transparent}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:4px;height:38px;border-radius:3px;background:var(--ink);box-shadow:0 0 0 3px #fff}
+input[type=range]::-moz-range-thumb{width:4px;height:38px;border-radius:3px;border:0;background:var(--ink);box-shadow:0 0 0 3px #fff}
+input[type=range]:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:6px}
+.waktu-info{text-align:right;min-width:150px}
+.waktu-info b{font:900 15px 'Nunito';display:block}
+
+.tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:#fff;border-radius:12px;padding:8px 11px;font:700 12.5px/1.4 'Nunito';max-width:250px;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s}
+.tip.on{opacity:1;transform:none}
+.tip b{font-weight:900}
+.tip .tg{color:#BDB8B0;font-weight:700}
+
+/* ---------- panel ---------- */
+.panel{min-height:0;overflow-y:auto;overflow-x:hidden;padding-right:4px;scrollbar-width:thin}
+.panel-isi{display:flex;flex-direction:column;gap:12px}
+.panel-isi>*{animation:masuk .55s var(--ease) both}
+.panel-isi>*:nth-child(2){animation-delay:.05s}.panel-isi>*:nth-child(3){animation-delay:.1s}.panel-isi>*:nth-child(4){animation-delay:.15s}.panel-isi>*:nth-child(5){animation-delay:.2s}.panel-isi>*:nth-child(6){animation-delay:.25s}.panel-isi>*:nth-child(7){animation-delay:.3s}.panel-isi>*:nth-child(8){animation-delay:.35s}
+@keyframes masuk{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.kartu{background:var(--kartu);border-radius:22px;padding:16px}
+.kartu.putih{background:var(--putih);box-shadow:0 0 0 1px var(--garis) inset}
+.kepala{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+.kepala h2{font-size:17px;font-weight:900}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.hero h2{font-size:22px;font-weight:900;line-height:1.05}
+.hero p{font:600 13.5px/1.45 'Nunito';color:var(--ink2);margin-top:6px}
+.verdict{display:inline-flex;align-items:center;gap:6px;margin-top:8px;border-radius:999px;padding:4px 11px;font:900 12px 'Nunito';background:#fff}
+.verdict i{width:8px;height:8px;border-radius:50%}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi{background:#fff;border-radius:16px;padding:11px 13px}
+.kpi b{display:block;font-size:25px;font-weight:900;line-height:1.05;font-variant-numeric:tabular-nums}
+.kpi b small{font-size:13px;font-weight:800;color:var(--redam)}
+.kpi>span{display:block;font:700 12px/1.3 'Nunito';color:var(--redam);margin-top:3px}
+.teks{font:600 13.5px/1.55 'Nunito';color:var(--ink2)}
+.teks b{color:var(--ink);font-weight:800}
+.sumber{font:600 11.5px/1.45 'Nunito';color:var(--redam);margin-top:10px}
+.sumber a{color:inherit}
+.rek{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.rek li{display:grid;grid-template-columns:26px 1fr;gap:9px;font:600 13px/1.45 'Nunito';color:var(--ink2)}
+.rek li i{width:26px;height:26px;border-radius:50%;background:#fff;font:900 12px 'Nunito';font-style:normal;color:var(--ink);display:flex;align-items:center;justify-content:center}
+.rek li b{color:var(--ink);font-weight:800}
+
+/* bullet */
+.bullet{margin:12px 0 4px}
+.bullet .lab{display:flex;justify-content:space-between;font:800 13px 'Nunito';margin-bottom:6px}
+.bullet .lab span{font:700 11.5px 'Nunito';color:var(--redam)}
+.b-baris{display:grid;grid-template-columns:52px 1fr 54px;align-items:center;gap:8px;margin:4px 0}
+.b-baris .nm{font:700 11.5px 'Nunito';color:var(--redam)}
+.b-baris .nl{font:900 12.5px 'Nunito';text-align:right;font-variant-numeric:tabular-nums}
+.b-track{position:relative;height:10px;background:#fff;border-radius:6px}
+.b-fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--c);width:0;transition:width 1.1s var(--ease)}
+.b-fill.gagal{background:#B9B5AF}
+.b-std{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);border-radius:2px}
+
+.status{display:inline-flex;align-items:center;gap:4px;font:900 11px 'Nunito';border-radius:999px;padding:2px 8px;background:#fff}
+.ok{color:#1F7A4D}.no{color:#A33A1A}
+
+/* tabel */
+table{width:100%;border-collapse:collapse;font:700 12.5px 'Nunito'}
+th{text-align:left;color:var(--redam);font-weight:800;font-size:11.5px;padding:6px 6px;border-bottom:1px solid var(--garis)}
+td{padding:7px 6px;border-bottom:1px solid var(--garis);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+
+.donut-wrap{display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:center}
+.seg{display:flex;background:#fff;border-radius:999px;padding:3px;gap:2px;margin-bottom:10px}
+.seg button{flex:1;border:0;background:none;border-radius:999px;padding:6px 8px;font:800 12px 'Nunito';cursor:pointer;color:var(--ink2)}
+.seg button.on{background:var(--ink);color:#fff}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(31,31,31,.35);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal[hidden]{display:none}
+.modal-isi{background:var(--bg);border-radius:26px;max-width:760px;width:100%;max-height:86vh;overflow:auto;padding:26px 28px;animation:masuk .4s var(--ease)}
+.modal-isi h2{font-size:24px;font-weight:900;margin-bottom:6px}
+.modal-isi h3{font-size:15px;font-weight:900;margin:16px 0 4px}
+.modal-isi p,.modal-isi li{font:600 13.5px/1.55 'Nunito';color:var(--ink2)}
+.modal-isi ol,.modal-isi ul{padding-left:20px;margin:6px 0}
+.rumus{background:var(--kartu);border-radius:12px;padding:10px 12px;font:700 12.5px/1.6 ui-monospace,Menlo,monospace;color:var(--ink);margin:6px 0;overflow-x:auto}
+.tutup{float:right;border:0;background:var(--kartu);width:36px;height:36px;border-radius:50%;cursor:pointer;font:900 16px 'Nunito'}
+
+.memuat{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 14px 'Nunito';color:var(--redam);z-index:5;transition:opacity .5s}
+
+@media (max-width:1180px){
+  body{overflow:auto}
+  .app{height:auto}
+  main{grid-template-columns:1fr}
+  nav{flex-direction:row;overflow-x:auto}
+  .tab{min-width:200px}
+  .nav-catatan{display:none}
+  .peta-kartu{height:62vh;min-height:430px}
+  .panel{overflow:visible}
+  header{flex-direction:column;align-items:flex-start}
+}
+@media (max-width:1180px){nav{align-items:flex-start}nav>.kartu{display:none}}
+@media (max-width:700px){.legenda{max-width:56%;padding:9px 11px}.legenda p{display:none}.legenda h3{font-size:12.5px}.waktu-info{display:none}.waktu{grid-template-columns:auto auto 1fr}h1{font-size:28px}.kanan-head{flex-wrap:wrap}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="judul">
+      <span class="pill"><i></i>Feasibility Study · Kawasan TOD Blok M, Jakarta Selatan</span>
+      <h1>Blok M dibaca lewat <span>4 lensa</span> kawasan</h1>
+    </div>
+    <div class="kanan-head">
+      <a class="tbl" href="../index.html" style="text-decoration:none;color:inherit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg>Peta 3D</a>
+      <button class="tbl" id="tbl-metode" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>Metodologi &amp; sumber</button>
+      <div class="skor-total" id="skor-total"></div>
+    </div>
+  </header>
+
+  <main>
+    <nav id="nav" aria-label="Parameter"></nav>
+
+    <section class="peta-kartu" aria-label="Peta analisis">
+      <div class="viewport" id="viewport">
+        <div class="tilt" id="tilt">
+          <div class="dunia" id="dunia">
+            <img id="base" src="peta.webp" alt="">
+            <img id="base2" src="peta_osm.webp" alt="">
+            <img id="sat" src="satelit.webp" alt="">
+            <canvas id="lapis" width="1400" height="717"></canvas>
+            <svg id="svg" viewBox="0 0 1400 717"></svg>
+            <canvas id="fx" width="2800" height="1434"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="legenda" id="legenda"></div>
+      <div class="kontrol">
+        <div class="grup" role="group" aria-label="Peta dasar">
+          <button class="ikon-tbl on" data-base="peta" type="button" title="Peta analisis">Peta</button>
+          <button class="ikon-tbl" data-base="sat" type="button" title="Citra satelit (area inti)">Satelit</button>
+          <button class="ikon-tbl" data-base="osm" type="button" title="OpenStreetMap asli">OSM</button>
+        </div>
+        <div class="grup" role="group" aria-label="Tampilan">
+          <button class="ikon-tbl" id="tbl-3d" type="button" title="Tampilan miring 3D">3D</button>
+          <button class="ikon-tbl on" id="tbl-orang" type="button" title="Simulasi pejalan kaki"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="4.5" r="2.5"/><path d="M10 8h4l2 6h-2l-1 8h-2l-1-8H8z"/></svg></button>
+        </div>
+        <div class="grup v" role="group" aria-label="Zoom">
+          <button class="ikon-tbl" id="zin" type="button" title="Perbesar">+</button>
+          <button class="ikon-tbl" id="zout" type="button" title="Perkecil">−</button>
+          <button class="ikon-tbl" id="zreset" type="button" title="Atur ulang"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 9V4h5M20 15v5h-5M4 4l6 6M20 20l-6-6"/></svg></button>
+        </div>
+      </div>
+      <div class="waktu">
+        <button class="main-tbl" id="main" type="button" aria-label="Putar simulasi 24 jam"><svg id="ikon-main" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg></button>
+        <div class="jam" id="jam">17:00<small>simulasi harian</small></div>
+        <div class="rel"><svg id="ritme-mini" preserveAspectRatio="none" viewBox="0 0 240 38"></svg><input type="range" id="slider" min="5" max="24" step="0.05" value="17" aria-label="Jam dalam sehari"></div>
+        <div class="waktu-info" id="waktu-info"></div>
+      </div>
+      <div class="memuat" id="memuat">Menyiapkan peta…</div>
+    </section>
+
+    <aside class="panel" id="panel"><div class="panel-isi" id="panel-isi"></div></aside>
+  </main>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-isi" role="dialog" aria-modal="true" aria-labelledby="m-judul">
+    <button class="tutup" id="tutup" type="button" aria-label="Tutup">✕</button>
+    <h2 id="m-judul">Metodologi &amp; sumber data</h2>
+    <p>Semua angka dihitung dari berkas di folder <b>6 FS BLOK M</b>: peta OSM (<i>Map/osm.png</i>), citra satelit (<i>Map/Google Earth.jpg</i>), dan 14 jurnal/regulasi di folder <i>Journal</i>. Skala peta dikalibrasi ±1,44 m/piksel dari bilah skala 50 m pada infografis kawasan dan dimensi blok yang diketahui, sehingga jarak dan luas punya toleransi sekitar ±10%.</p>
+    <h3>1 · Aksesibilitas</h3>
+    <p>Jaringan jalan diekstrak dari warna jalan di peta OSM (grid 2,9 m), lalu dihitung jarak jaringan (Dijkstra) dari setiap titik ke simpul transit terdekat: MRT Blok M BCA, MRT ASEAN, Terminal Blok M, dan halte TransJakarta. Waktu tempuh memakai kecepatan jalan 80 m/menit (4,8 km/jam).</p>
+    <div class="rumus">Skor = rata-rata( % area ≤5 menit , % area ≤10 menit , kesesuaian aspek transit TOD )</div>
+    <h3>2 · Walkability: kenapa persen <i>dan</i> radius</h3>
+    <p>Radius saja (lingkaran 400/800 m) menganggap orang bisa berjalan lurus menembus bangunan. Persen saja tidak menunjukkan di mana masalahnya. Karena itu dipakai <b>Pedshed Ratio</b>: persentase luas lingkaran 400 m (±5 menit) dan 800 m (±10 menit) dari MRT Blok M yang benar-benar terjangkau lewat jaringan jalan. Acuan umum: di atas 50% cukup, di atas 70% baik. Peta per titik memakai skor komposit.</p>
+    <div class="rumus">Pedshed = luas terjangkau via jaringan ≤ R ÷ luas lingkaran R (dalam bingkai peta)<br>Skor titik = 0,30·akses transit + 0,25·kepadatan simpang + 0,25·campuran guna lahan + 0,20·keteduhan<br>Skor parameter = rata-rata( pedshed 800 m , skor titik rata-rata 800 m , kesesuaian "kawasan ramah" TOD )</div>
+    <h3>3 · Variety function</h3>
+    <p>Guna lahan diklasifikasi dari warna landuse OSM (hunian, komersial &amp; jasa, pendidikan &amp; publik, ruang hijau, fasilitas lain). Campuran dihitung dengan indeks entropi Shannon ternormalisasi (0 = satu fungsi, 1 = merata) dalam jendela 150 m.</p>
+    <div class="rumus">Entropi = −Σ pᵢ·ln pᵢ ÷ ln 5<br>Skor = rata-rata( entropi 800 m × 100 , kesesuaian aspek campuran TOD )</div>
+    <h3>4 · Kenyamanan termal (heat map)</h3>
+    <p><b>Ini indeks estimasi, bukan hasil ukur suhu.</b> Folder belum berisi data suhu lapangan atau citra termal. Indeks dibangun dari tutupan vegetasi (indeks kehijauan ExG dari citra satelit pada area inti, dan landuse OSM di luarnya), proporsi permukaan kedap (jalan, atap), dan kegelapan permukaan. Kurva harian memakai asumsi suhu udara tipikal Jakarta (±25 °C pagi, ±33 °C siang). Sebagai uji silang skala dan jaringan: model menghitung jarak jaringan MRT Blok M ke tepi Pasaraya ±980 m, sejalan dengan 948 m pada audit TOD Gifarry dkk. (2022). Untuk keputusan desain, validasi dengan citra Landsat LST atau pengukuran ENVI-met / sensor lapangan.</p>
+    <div class="rumus">Indeks panas = 0,55·kedap + 0,25·permukaan gelap − 0,75·vegetasi lokal (10 m) − 0,45·vegetasi sekitar (60 m)<br>Skor = rata-rata( 100 − % area panas tinggi , % jalur pedestrian berpeneduh ÷ standar 75% )</div>
+    <h3>Skor kelayakan total</h3>
+    <p>Bobot memakai hasil AHP para pemangku kepentingan pada studi TOD Blok M (Gifarry dkk., 2022): keterjangkauan angkutan umum 0,493, aksesibilitas pejalan kaki 0,320, kenyamanan suasana 0,106, intensitas &amp; kepadatan 0,081. Kategori: ≥75 layak, 55–74 layak bersyarat, &lt;55 perlu intervensi besar.</p>
+    <h3>Sumber</h3>
+    <ol id="daftar-sumber"></ol>
+  </div>
+</div>
+
+<script>
+const DATA = /*DATA*/null;
+</script>
+<script>
+'use strict';
+// =============================================================
+//  Data literatur (dari folder Journal)
+// =============================================================
+const LIT = {
+  blok: ['Blok 1', 'Blok 2', 'Blok 3'],
+  blokKet: ['Barat: Blok M Plaza, Panglima Polim, Kejaksaan', 'Utara: hunian lama & rumah dinas Peruri', 'Timur: Blok M Square, Terminal, Pasaraya'],
+  tod: { // Gifarry dkk. 2022, Tabel 3–5
+    jalurPed: [83, 13, 52], penyeberangan: [41, 8, 33], peneduh: [25, 13, 24], sepeda: [33, 15, 75],
+    mukaBlok: [177, 223, 141], permeabel: [1.62, 0.55, 3.77], keragaman: [24.22, 5.06, 38.94], kegiatan: [10, 7, 9],
+    jarakMRT: [443, 652, 948], jarakTerminal: [607, 414, 692], kepadatan: [9.77, 4.88, 6.44],
+    aspekCampuran: [57, 43, 71], aspekRamah: [37.5, 12.5, 25], aspekPenunjang: [66, 66, 100], aspekTransit: [100, 100, 100], total: [52.4, 42.8, 66.6],
+  },
+  ahp: [['Keterjangkauan angkutan umum', .4932], ['Aksesibilitas pejalan kaki & pesepeda', .3200], ['Kenyamanan suasana kawasan', .1060], ['Intensitas & kepadatan bangunan', .0808]],
+  ahpAlt: [['Koneksi titik transit dengan bangunan', .3299], ['Jalur sepeda sesuai tipe', .1274], ['Parkir sepeda dekat transit', .1232], ['Jalur pejalan kaki', .0723], ['Fasilitas bike sharing', .0691]],
+  modaJkt: { motor: 68.3, umum: 18.45 },
+  mbloc: [['MRT Blok M BCA', '±5 menit jalan kaki', '15–20 mnt dari Bundaran HI'], ['Halte TransJakarta Blok M', '±10 menit jalan kaki', '30–40 mnt dari Harmoni'], ['KRL Stasiun Kebayoran', '±3 km', '+10–15 mnt ojek/taksi']],
+  pengunjung: { mbloc: 6000, mblocWeekend: 11000, tamanLiterasi: 400, pkl: 40 },
+  rth: { jakarta: 5.2, target: 30 },
+  survei: { nyaman: 48, tidak: 9, abstain: 1 },
+  kebayoran1948: [['Hunian', 45], ['Toko & bangunan lain', 14], ['Ruang hijau', 16], ['Jalan', 25]],
+};
+const SUMBER = [
+  'Gifarry, P., Dwi Ari, I.R., Firdausiyah, N. (2022). Penerapan Kawasan Berorientasi Transit di Kawasan Transit Blok M, Jakarta Selatan. Jurnal Tata Kota dan Daerah 14(2).',
+  'Ramadhan, N.F., Nugroho, A.C., Agumsari, D. (2025). Optimalisasi Ruang Terbuka Hijau di Kawasan Blok M. JDLBI 2(1).',
+  'Latip, A. dkk. (2024). The Role of M Bloc Space as A Creative Space in Forming Popular Culture Among Youth in Jakarta. Cities and Urban Development Journal 2(2).',
+  'Gavriel, M., Surya, R. (2022). Mengembalikan Popularitas Blok M sebagai Area Berkumpul Pemuda Jakarta melalui Urban Acupuncture. JSTUPA 4(2).',
+  'Rahmah, H.L., Kurniawan, T.A. (2022). Analisis Penerapan Konsep Urban Katalis pada M Bloc Space. Prosiding SAKAPARI 2022.',
+  'Manurung, C.K. (2025). Evaluasi Model CIPP Implementasi Kebijakan TOD di Kawasan Blok M–Sisingamangaraja. JAKP 10(1).',
+  'Riza, F.A., Suryadjaja, R., Widiastuti, S. (2026). Dinamika Perubahan Kawasan Blok M: Studi Kasus Pasaraya Gang Viral. JSTUPA 8(1).',
+  'Entas, D., Arfarani (2019). Potensi Kawasan Blok M Square sebagai Ikon Destinasi Wisata Kuliner Lesehan. Jurnal Industri Pariwisata 2(1).',
+  'Ramadhan, N.F., Nugroho, A.C. (2025). The Influence of Changes in Visitor Behavior in Post-pandemic Shopping Centers: Mall Blok M dan Plaza Semanggi. Jurnal Arsitektur 15(1).',
+  'Alimah, M.K. dkk. (2026). Comparative Study of JNM Bloc Yogyakarta and Blok M Jakarta through Creative Placemaking. Lakar 9(1).',
+  'Varlencia, A., Asharhani, I.S. (2025). Pola Aktivitas Pengunjung MRT Blok M terkait Sense of Place. JIMTD 1(1).',
+  'Pergub DKI Jakarta No. 103 Tahun 2021 tentang Penataan Ruang Kawasan Kebayoran Baru.',
+  'Peta dasar © kontributor OpenStreetMap (ODbL); citra satelit Google Earth; ekspor Mapbox milik pengguna.',
+];
+
+// =============================================================
+//  Utilitas
+// =============================================================
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const nf = (v, d = 0) => new Intl.NumberFormat('id-ID', { minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const mix3 = (c1, c2, t) => [lerp(c1[0], c2[0], t), lerp(c1[1], c2[1], t), lerp(c1[2], c2[2], t)];
+const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function dec(b64) { const s = atob(b64); const a = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+function ramp(stops) { // stops: [[t,'#hex'],...]
+  const S = stops.map(([t, h]) => [t, hex(h)]);
+  return (t) => { t = clamp(t); for (let i = 1; i < S.length; i++) if (t <= S[i][0]) { const u = (t - S[i - 1][0]) / (S[i][0] - S[i - 1][0]); return mix3(S[i - 1][1], S[i][1], u); } return S[S.length - 1][1]; };
+}
+function gradCSS(stops) { return 'linear-gradient(90deg,' + stops.map(([t, h]) => `${h} ${t * 100}%`).join(',') + ')'; }
+
+// =============================================================
+//  Grid analisis
+// =============================================================
+const M = DATA.meta, GW = M.gw, GH = M.gh, CELL = 1400 / GW, MPP = M.mpp;
+const GR = {}; for (const k in DATA.grid) GR[k] = dec(DATA.grid[k]);
+const val = {
+  akses: (i) => GR.akses[i] / 255 * 15,      // menit
+  walk: (i) => GR.walk[i] / 255 * 100,       // skor
+  mix: (i) => GR.mix[i] / 255,               // entropi
+  panas: (i) => GR.panas[i] / 255,           // indeks
+  iso: (i) => GR.iso[i] / 255 * 1600,        // meter dari MRT Blok M
+  lu: (i) => GR.lu[i],
+};
+const LU = { 3: ['Hunian', '#C99A1E'], 4: ['Komersial & jasa', '#D9573A'], 5: ['Pendidikan & publik', '#3E7FD0'], 6: ['Ruang hijau', '#3F9A5E'], 8: ['Fasilitas lain', '#9A6BB8'], 1: ['Jalan', '#FFFFFF'] };
+const ST = DATA.stat;
+
+// =============================================================
+//  Skor
+// =============================================================
+const avg = (a) => a.reduce((s, x) => s + x, 0) / a.length;
+const SK = {};
+SK.akses = Math.round(avg([ST.akses.persen_5menit_800, ST.akses.persen_10menit_800, avg(LIT.tod.aspekTransit)]));
+SK.walk = Math.round(avg([ST.pedshed['800'].rasio, ST.walk.skor_800, avg(LIT.tod.aspekRamah)]));
+SK.variety = Math.round(avg([ST.mix.entropi_800 * 100, avg(LIT.tod.aspekCampuran)]));
+SK.termal = Math.round(avg([100 - ST.panas.persen_panas_tinggi_800, avg(LIT.tod.peneduh) / 75 * 100]));
+const W = { akses: .4932, walk: .32, termal: .106, variety: .0808 };
+SK.total = Math.round(SK.akses * W.akses + SK.walk * W.walk + SK.termal * W.termal + SK.variety * W.variety);
+function kategori(s) { return s >= 75 ? ['Layak', '#1F7A4D'] : s >= 55 ? ['Layak bersyarat', '#B7791F'] : ['Perlu intervensi besar', '#A33A1A']; }
+
+// =============================================================
+//  Ritme aktivitas (pola kualitatif Gavriel & Surya 2022) & suhu
+// =============================================================
+const g = (h, m, s) => Math.exp(-((h - m) ** 2) / (2 * s * s));
+const RITME = [
+  { k: 'Harian (kerja, sekolah)', c: '#2F6BD8', f: (h) => .05 + g(h, 7.8, 1.1) + .45 * g(h, 12.3, .8) + .8 * g(h, 17.6, 1.1) },
+  { k: 'Komersial & kuliner', c: '#D9573A', f: (h) => .04 + .75 * clamp((h - 9.5) / 2) * clamp((23 - h) / 2) + .3 * g(h, 12.5, 1) + .35 * g(h, 19.5, 1.4) },
+  { k: 'Rekreasi pasif (nongkrong)', c: '#3F9A5E', f: (h) => .03 + .35 * g(h, 12, 2) + 1.0 * g(h, 17.3, 1.6) },
+  { k: 'Hiburan malam', c: '#7C4DCC', f: (h) => .02 + 1.0 * g(h, 23, 2.2) + .6 * g(h, 25, 2) },
+];
+const totalAktif = (h) => RITME.reduce((s, r) => s + r.f(h), 0);
+const MAX_AKTIF = Math.max(...Array.from({ length: 200 }, (_, i) => totalAktif(5 + i * .1)));
+const suhuUdara = (h) => 25.3 + 7.6 * Math.pow(clamp(Math.sin(Math.PI * (h - 6.2) / 15.6)), 1.25) + (h > 21 ? -.4 * (h - 21) : 0);
+const radiasi = (h) => clamp(Math.sin(Math.PI * (h - 6) / 12.4));
+
+// =============================================================
+//  Konfigurasi parameter (tab)
+// =============================================================
+const RAMP = {
+  akses: [[0, '#1E4FB8'], [.33, '#5C8BE6'], [.66, '#BBD0F6'], [1, '#F4F1EC']],
+  walk: [[0, '#F4F1EC'], [.35, '#BFE3CD'], [.65, '#5DBB8A'], [1, '#1E7A50']],
+  mix: [[0, '#F4F1EC'], [.4, '#D9CCF2'], [.7, '#A27FE0'], [1, '#5A2FA8']],
+  panas: [[0, '#2C9C9A'], [.3, '#BFE3D6'], [.5, '#F7EBC4'], [.72, '#F29A55'], [1, '#B8241C']],
+};
+const fAkses = ramp(RAMP.akses), fWalk = ramp(RAMP.walk), fMix = ramp(RAMP.mix), fPanas = ramp(RAMP.panas);
+const TABS = [
+  { id: 'ringkasan', nama: 'Ringkasan', sub: 'Skor kelayakan total', warna: '#C2441F' },
+  { id: 'aksesibilitas', nama: 'Aksesibilitas', sub: 'Waktu jalan ke transit', warna: '#2F6BD8', skor: 'akses' },
+  { id: 'walkability', nama: 'Walkability', sub: 'Pedshed 400 & 800 m', warna: '#2E9A6A', skor: 'walk' },
+  { id: 'variety', nama: 'Variety function', sub: 'Campuran guna lahan', warna: '#7C4DCC', skor: 'variety' },
+  { id: 'termal', nama: 'Heat map termal', sub: 'Indeks kenyamanan', warna: '#E4572E', skor: 'termal' },
+];
+let tab = 'ringkasan', jam = 17, varMode = 'lu', walkR = 0, walkT0 = 0, aksT0 = 0;
+
+// =============================================================
+//  Komponen grafik (SVG)
+// =============================================================
+function cincin(nilai, warna, ukuran = 46, tebal = 6, teks = true) {
+  const r = (ukuran - tebal) / 2, k = 2 * Math.PI * r;
+  return `<svg width="${ukuran}" height="${ukuran}" viewBox="0 0 ${ukuran} ${ukuran}" role="img" aria-label="Skor ${nilai} dari 100">
+    <circle cx="${ukuran / 2}" cy="${ukuran / 2}" r="${r}" fill="none" stroke="#E6E4E0" stroke-width="${tebal}"/>
+    <circle class="busur" cx="${ukuran / 2}" cy="${ukuran / 2}" r="${r}" fill="none" stroke="${warna}" stroke-width="${tebal}" stroke-linecap="round"
+      stroke-dasharray="${k}" stroke-dashoffset="${k}" data-off="${k * (1 - nilai / 100)}" transform="rotate(-90 ${ukuran / 2} ${ukuran / 2})" style="transition:stroke-dashoffset 1.3s cubic-bezier(.3,1.1,.5,1)"/>
+    ${teks ? `<text x="50%" y="50%" dy=".35em" text-anchor="middle" font-family="Nunito" font-weight="900" font-size="${ukuran * .3}" fill="#1F1F1F" data-count="${nilai}">0</text>` : ''}
+  </svg>`;
+}
+function bullet(judul, nilai, std, opt = {}) {
+  const { satuan = '%', maks = 100, arah = 'min', d = 0, ket = '' } = opt;
+  const lolos = (v) => arah === 'min' ? v >= std : v <= std;
+  return `<div class="bullet"><div class="lab">${judul}<span>${ket || (arah === 'min' ? 'standar ≥ ' : 'standar ≤ ') + nf(std, d) + satuan}</span></div>
+  ${nilai.map((v, i) => `<div class="b-baris" data-tip="<b>${LIT.blok[i]}</b> · ${LIT.blokKet[i]}<br>${judul}: <b>${nf(v, d)}${satuan}</b> (${lolos(v) ? 'memenuhi' : 'belum memenuhi'} standar)">
+    <span class="nm">${LIT.blok[i]}</span>
+    <div class="b-track"><div class="b-fill ${lolos(v) ? '' : 'gagal'}" data-w="${clamp(v / maks) * 100}"></div><div class="b-std" style="left:${clamp(std / maks) * 100}%" data-l="${i === 0 ? 'std' : ''}"></div></div>
+    <span class="nl">${nf(v, d)}${satuan}</span></div>`).join('')}</div>`;
+}
+function donut(data, ukuran = 140) { // data: [[label,nilai,warna]]
+  const tot = data.reduce((s, d) => s + d[1], 0), r = ukuran / 2 - 12, k = 2 * Math.PI * r; let acc = 0;
+  const gap = 2.5;
+  return `<svg width="${ukuran}" height="${ukuran}" viewBox="0 0 ${ukuran} ${ukuran}" role="img" aria-label="Komposisi guna lahan">
+  ${data.map(([l, v, c]) => { const len = v / tot * k; const s = `<circle cx="${ukuran / 2}" cy="${ukuran / 2}" r="${r}" fill="none" stroke="${c}" stroke-width="20"
+     stroke-dasharray="${Math.max(0, len - gap)} ${k}" stroke-dashoffset="${-acc}" transform="rotate(-90 ${ukuran / 2} ${ukuran / 2})" data-tip="<b>${l}</b>: ${nf(v, 1)}%" style="cursor:default"/>`; acc += len; return s; }).join('')}
+  </svg>`;
+}
+function grafikRitme(lebar = 360, tinggi = 150) {
+  const x = (h) => 26 + (h - 5) / 19 * (lebar - 40), y = (v) => tinggi - 22 - v / 1.15 * (tinggi - 34);
+  let s = `<svg viewBox="0 0 ${lebar} ${tinggi}" width="100%" role="img" aria-label="Ritme aktivitas 24 jam" id="g-ritme">`;
+  for (const v of [0, .5, 1]) s += `<line x1="26" x2="${lebar - 14}" y1="${y(v)}" y2="${y(v)}" stroke="#E2E1DE" stroke-width="1"/>`;
+  for (const h of [6, 9, 12, 15, 18, 21, 24]) s += `<text x="${x(h)}" y="${tinggi - 6}" text-anchor="middle" font-family="Nunito" font-weight="700" font-size="10" fill="#6A6763">${String(h % 24).padStart(2, '0')}</text>`;
+  RITME.forEach((r) => { let d = ''; for (let h = 5; h <= 24.001; h += .25) d += (d ? 'L' : 'M') + x(h).toFixed(1) + ' ' + y(Math.min(1.15, r.f(h))).toFixed(1); s += `<path d="${d}" fill="none" stroke="${r.c}" stroke-width="2" stroke-linejoin="round"/>`; });
+  s += `<line id="ritme-kursor" x1="0" x2="0" y1="8" y2="${tinggi - 20}" stroke="#1F1F1F" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+  s += `<rect x="26" y="0" width="${lebar - 40}" height="${tinggi - 18}" fill="transparent" id="ritme-hit" style="cursor:crosshair"/>`;
+  return s + '</svg>';
+}
+function legendaRitme() { return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;margin-top:6px">${RITME.map((r, i) => `<div class="leg-item"><i style="background:${r.c}"></i>${r.k}<s id="rv${i}"></s></div>`).join('')}</div>`; }
+
+// =============================================================
+//  Navigasi
+// =============================================================
+function renderNav() {
+  $('#nav').innerHTML = TABS.map((t, i) => `<button class="tab" type="button" data-tab="${t.id}" style="--c:${t.warna}">
+    <span class="no">${i === 0 ? '' : '0' + i}</span>
+    ${cincin(t.skor ? SK[t.skor] : SK.total, t.warna, 46, 6)}
+    <span><b>${t.nama}</b><span class="kecil">${t.sub}</span></span></button>`).join('') +
+    `<div class="kartu" style="padding:14px;margin-top:6px"><span class="kecil">Basis data</span><div class="kpi-grid" style="margin-top:6px;gap:6px">${[[13,'jurnal & prosiding'],[1,'Pergub 103/2021'],[DATA.paths.length,'jejak pejalan kaki'],[Math.round(1400*717*M.mpp*M.mpp/1e4),'ha area dipetakan']].map(([n,l])=>`<div class="kpi" style="padding:8px 10px"><b style="font-size:19px"><span data-count="${n}">0</span></b><span style="font-size:11px">${l}</span></div>`).join('')}</div></div>
+    <div class="nav-catatan"><b>Cara membaca.</b> Pilih parameter di atas. Peta, legenda, dan panel kanan ikut berganti. Geser jam di bawah peta untuk melihat Blok M hidup sepanjang hari, arahkan kursor ke peta untuk nilai per titik.</div>`;
+  $$('.tab').forEach((b) => b.addEventListener('click', () => { location.hash = b.dataset.tab; }));
+  const [kt, kw] = kategori(SK.total);
+  $('#skor-total').innerHTML = `${cincin(SK.total, kw, 52, 7, false)}<div><span class="kecil">Skor kelayakan (bobot AHP)</span><span class="angka" data-count="${SK.total}">0</span> <span class="kecil" style="display:inline;color:${kw}">${kt}</span></div>`;
+  animasiAngka(document);
+}
+function animasiAngka(root) {
+  requestAnimationFrame(() => {
+    $$('.busur', root).forEach((c) => c.style.strokeDashoffset = c.dataset.off);
+    $$('.b-fill', root).forEach((c) => c.style.width = c.dataset.w + '%');
+    $$('[data-count]', root).forEach((el) => {
+      const tgt = +el.dataset.count, d = +(el.dataset.dec || 0), t0 = performance.now(), dur = reduceMotion ? 1 : 1100;
+      const step = (now) => { const u = clamp((now - t0) / dur); const e = 1 - Math.pow(1 - u, 3); el.textContent = nf(tgt * e, d) + (el.dataset.suf || ''); if (u < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    });
+  });
+}
+
+// =============================================================
+//  Panel per tab
+// =============================================================
+const kpi = (n, lbl, opt = {}) => `<div class="kpi"><b><span data-count="${n}" data-dec="${opt.d || 0}" data-suf="">0</span>${opt.suf ? `<small>${opt.suf}</small>` : ''}</b><span>${lbl}</span></div>`;
+const heroBlok = (skor, warna, judul, isi) => { const [k, w] = kategori(skor); return `<div class="kartu hero" style="--c:${warna}">${cincin(skor, warna, 92, 10)}<div><h2>${judul}</h2><p>${isi}</p><span class="verdict"><i style="background:${w}"></i>${k}</span></div></div>`; };
+
+function panelRingkasan() {
+  const baris = [['Aksesibilitas', 'akses', '#2F6BD8', W.akses], ['Walkability', 'walk', '#2E9A6A', W.walk], ['Heat map termal', 'termal', '#E4572E', W.termal], ['Variety function', 'variety', '#7C4DCC', W.variety]];
+  return `${heroBlok(SK.total, '#C2441F', 'Layak, dengan pekerjaan rumah di level jalan', 'Blok M sangat kuat di <b>akses transit</b> dan <b>campuran fungsi</b>, tetapi pengalaman berjalan dan <b>kenyamanan termal</b> masih menahan nilainya.')}
+  <div class="kartu"><div class="kepala"><h2>Skor per parameter</h2><span class="kecil">bobot AHP</span></div>
+    ${baris.map(([n, k, c, w]) => `<div class="b-baris" style="grid-template-columns:118px 1fr 34px;--c:${c}" data-tip="<b>${n}</b>: ${SK[k]}/100<br><span class='tg'>bobot ${nf(w * 100, 1)}% · kontribusi ${nf(SK[k] * w, 1)} poin</span>">
+      <span class="nm" style="font-size:12.5px;color:#1F1F1F;font-weight:800">${n}</span><div class="b-track"><div class="b-fill" style="background:${c}" data-w="${SK[k]}"></div></div><span class="nl">${SK[k]}</span></div>`).join('')}
+    <p class="sumber">Bobot dari AHP pemangku kepentingan TOD Blok M (Gifarry dkk., 2022): keterjangkauan angkutan umum dinilai paling penting.</p></div>
+  <div class="kpi-grid">
+    ${kpi(ST.akses.persen_10menit_800, 'area dalam 800 m yang ≤10 menit jalan ke transit', { suf: '%', d: 0 })}
+    ${kpi(ST.pedshed['800'].rasio, 'pedshed ratio 800 m dari MRT Blok M', { suf: '%', d: 0 })}
+    ${kpi(ST.mix.entropi_800, 'indeks campuran guna lahan (0–1)', { d: 2 })}
+    ${kpi(ST.panas.veg_cover_sat, 'tutupan vegetasi area inti (citra satelit)', { suf: '%', d: 1 })}
+  </div>
+  <div class="kartu"><div class="kepala"><h2>Prioritas intervensi</h2><span class="kecil">hasil sintesis</span></div>
+    <ol class="rek">
+      <li><i>1</i><span><b>Koneksi transit ke bangunan.</b> Prioritas AHP tertinggi (0,33). Skybridge MRT–Plaza Blok M–Taman Literasi sudah ada, tetapi pengunjung tidak tahu jalurnya: perlu wayfinding.</span></li>
+      <li><i>2</i><span><b>Peneduh jalur pedestrian.</b> Baru 13–25% jalur berpeneduh dari standar 75%. Ini sekaligus menaikkan walkability dan kenyamanan termal.</span></li>
+      <li><i>3</i><span><b>Pecah blok panjang.</b> Muka blok 141–223 m (standar ≤130 m): buka <i>public easement</i> seperti lorong Gang Viral Pasaraya.</span></li>
+      <li><i>4</i><span><b>Hunian vertikal.</b> KLB hunian 0,4–0,93 (standar &gt;1,0) membuat kawasan sepi di luar jam komersial.</span></li>
+    </ol></div>
+  <div class="kartu"><div class="kepala"><h2>Blok M hidup sepanjang hari</h2><span class="kecil">pola aktivitas</span></div>${grafikRitme()}${legendaRitme()}
+    <p class="sumber">Kurva ilustratif dari pola kualitatif empat kategori aktivitas (Gavriel &amp; Surya, 2022). Titik-titik di peta adalah simulasi pejalan kaki dari simpul transit.</p></div>`;
+}
+function panelAkses() {
+  const t = LIT.tod;
+  return `${heroBlok(SK.akses, '#2F6BD8', 'Simpul transit terpadat di Jakarta Selatan', `Dalam radius 800 m, <b>${nf(ST.akses.persen_10menit_800, 0)}%</b> area cukup ditempuh ≤10 menit jalan kaki ke MRT, terminal, atau halte TransJakarta.`)}
+  <div class="kpi-grid">
+    ${kpi(ST.akses.menit_rata_400, 'rata-rata menit jalan ke transit (radius 400 m)', { d: 1, suf: ' mnt' })}
+    ${kpi(ST.akses.menit_rata_800, 'rata-rata menit jalan ke transit (radius 800 m)', { d: 1, suf: ' mnt' })}
+    ${kpi(ST.akses.persen_5menit_800, 'area 800 m yang ≤5 menit ke transit', { suf: '%' })}
+    ${kpi(DATA.transit.length, 'simpul transit dimodelkan (MRT, terminal, halte TJ)')}
+  </div>
+  <div class="kartu" style="--c:#2F6BD8"><div class="kepala"><h2>Jarak bangunan terjauh ke transit</h2><span class="kecil">per blok TOD</span></div>
+    ${bullet('Ke Stasiun MRT', t.jarakMRT, 1000, { satuan: ' m', maks: 1100, arah: 'max' })}
+    ${bullet('Ke Terminal Blok M', t.jarakTerminal, 500, { satuan: ' m', maks: 1100, arah: 'max', ket: 'standar ≤ 500 m (angkutan reguler)' })}
+    <p class="sumber">Standar TOD 3.0: ≤1.000 m ke angkutan cepat, ≤500 m ke angkutan reguler. Sumber: Gifarry dkk. (2022).</p></div>
+  <div class="kartu"><div class="kepala"><h2>Akses ke M Bloc Space</h2><span class="kecil">waktu tempuh</span></div>
+    <table><thead><tr><th>Moda</th><th>Dari simpul</th><th class="r">Dari pusat kota</th></tr></thead><tbody>
+    ${LIT.mbloc.map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="r">${r[2]}</td></tr>`).join('')}</tbody></table>
+    <p class="sumber">Latip dkk. (2024).</p></div>
+  <div class="kartu"><div class="kepala"><h2>Tantangannya: moda harian Jakarta</h2></div>
+    <div class="kpi-grid">${kpi(LIT.modaJkt.motor, 'perjalanan masih memakai sepeda motor', { suf: '%', d: 1 })}${kpi(LIT.modaJkt.umum, 'perjalanan memakai angkutan umum', { suf: '%', d: 2 })}</div>
+    <p class="teks" style="margin-top:10px">Akses fisik sudah unggul. Pekerjaannya kini menggeser pilihan moda: integrasi tarif, parkir sepeda (baru 2 unit di Blok 3), dan koneksi langsung transit–bangunan di Blok 2 dan 3.</p>
+    <p class="sumber">DPRD DKI Jakarta (2024) dalam Manurung (2025).</p></div>`;
+}
+function panelWalk() {
+  const t = LIT.tod, p4 = ST.pedshed['400'], p8 = ST.pedshed['800'];
+  return `${heroBlok(SK.walk, '#2E9A6A', 'Jaringannya rapat, jalannya belum ramah', `Dari MRT Blok M, jaringan jalan menjangkau <b>${nf(p4.rasio, 0)}%</b> lingkaran 400 m dan <b>${nf(p8.rasio, 0)}%</b> lingkaran 800 m. Cukup, tetapi trotoar, penyeberangan, dan peneduh masih di bawah standar.`)}
+  <div class="kartu putih"><div class="kepala"><h2>Kenapa pedshed ratio?</h2></div>
+    <p class="teks">Radius lingkaran saja menganggap orang bisa berjalan lurus menembus bangunan. Persen saja tidak memperlihatkan di mana masalahnya. <b>Pedshed ratio</b> menggabungkan keduanya: dari radius 400 m (±5 menit) dan 800 m (±10 menit), berapa persen yang benar-benar terjangkau lewat jalan. Acuan: &gt;50% cukup, &gt;70% baik.</p></div>
+  <div class="kpi-grid">
+    ${kpi(p4.rasio, 'pedshed 400 m (±5 menit)', { suf: '%', d: 1 })}
+    ${kpi(p8.rasio, 'pedshed 800 m (±10 menit)', { suf: '%', d: 1 })}
+    ${kpi(p8.simpang_per_km2, 'simpang per km² (800 m), indikator jaringan rapat')}
+    ${kpi(ST.walk.skor_800, 'skor walkability rata-rata 800 m (0–100)', { d: 1 })}
+  </div>
+  <div class="kartu" style="--c:#2E9A6A"><div class="kepala"><h2>Kualitas jalur per blok</h2><span class="kecil">audit TOD</span></div>
+    ${bullet('Jalur pedestrian layak', t.jalurPed, 80)}
+    ${bullet('Fasilitas penyeberangan layak', t.penyeberangan, 90)}
+    ${bullet('Jalur sepeda layak', t.sepeda, 100)}
+    ${bullet('Panjang muka blok', t.mukaBlok, 130, { satuan: ' m', maks: 240, arah: 'max' })}
+    ${bullet('Muka bangunan permeabel', t.permeabel, 3, { satuan: '/100 m', maks: 4.5, d: 2 })}
+    <p class="sumber">Garis hitam = standar TOD 3.0 &amp; Permen ATR 16/2017. Batang abu-abu = belum memenuhi. Sumber: Gifarry dkk. (2022).</p></div>
+  <div class="kartu"><div class="kepala"><h2>Suara pejalan kaki</h2><span class="kecil">survei M Bloc</span></div>
+    <div class="kpi-grid">${kpi(LIT.survei.nyaman, 'responden merasa nyaman berjalan kaki')}${kpi(LIT.survei.tidak, 'merasa tidak nyaman: panas siang & bising')}</div>
+    <p class="teks" style="margin-top:10px">Di Taman Martha Tiahahu, pengunjung memilih lewat jalan raya karena <b>tidak tahu ada jembatan penghubung</b> ke MRT dan Plaza Blok M. Masalahnya ada di wayfinding, bukan ketiadaan jalur.</p>
+    <p class="sumber">Rahmah &amp; Kurniawan (2022); Varlencia &amp; Asharhani (2025).</p></div>`;
+}
+function panelVariety() {
+  const ent = ST.mix, data = (r) => Object.entries(ent[r]).map(([k, v], i) => [k, v, ['#C99A1E', '#D9573A', '#3E7FD0', '#3F9A5E', '#9A6BB8'][i]]);
+  const t = LIT.tod;
+  return `${heroBlok(SK.variety, '#7C4DCC', 'Campuran fungsi yang kaya, tapi didominasi komersial', `Indeks campuran <b>${nf(ent.entropi_800, 2)}</b> dari 1. Pusatnya komersial dan kuliner. Hunian bertahan di pinggir, ruang hijau sekitar 1 dari 10 petak.`)}
+  <div class="kartu"><div class="kepala"><h2>Komposisi guna lahan</h2><span class="kecil" id="v-ket">radius 800 m</span></div>
+    <div class="seg" role="tablist"><button type="button" data-r="r400">400 m</button><button type="button" data-r="r800" class="on">800 m</button></div>
+    <div class="donut-wrap"><div id="donut">${donut(data('r800'))}</div><div id="donut-leg">${data('r800').map(([k, v, c]) => `<div class="leg-item"><i style="background:${c}"></i>${k}<s>${nf(v, 1)}%</s></div>`).join('')}</div></div>
+    <p class="sumber">Klasifikasi landuse OpenStreetMap; bangunan diberi fungsi dari guna lahan di sekitarnya.</p></div>
+  <div class="kartu putih"><div class="kepala"><h2>1948 → kini</h2><span class="kecil">Kebayoran Baru</span></div>
+    <p class="teks">Rencana awal Kebayoran Baru (730 ha) hanya memberi <b>14%</b> untuk toko; Blok M pada awalnya hanya pasar kecil. Kini komersial menjadi fungsi terbesar di inti 400 m (<b>${nf(ent.r400['Komersial & jasa'], 0)}%</b>), menggeser hunian dari 45% rencana awal.</p></div>
+  <div class="kartu" style="--c:#7C4DCC"><div class="kepala"><h2>Keragaman per blok</h2><span class="kecil">audit TOD</span></div>
+    ${bullet('Proporsi hunian : nonhunian', t.keragaman, 15, { maks: 100, d: 1, ket: 'standar 15–85%' })}
+    ${bullet('Jenis kegiatan', t.kegiatan, 5, { satuan: '', maks: 12, ket: 'standar > 5 kegiatan' })}
+    ${bullet('Kepadatan bangunan', t.kepadatan, 20, { satuan: '/ha', maks: 25, d: 1 })}
+    <p class="sumber">Gifarry dkk. (2022).</p></div>
+  <div class="kartu"><div class="kepala"><h2>Magnet aktivitas</h2></div>
+    <div class="kpi-grid">${kpi(LIT.pengunjung.mbloc, 'pengunjung M Bloc per hari kerja')}${kpi(LIT.pengunjung.mblocWeekend, 'pengunjung M Bloc saat akhir pekan')}${kpi(LIT.pengunjung.tamanLiterasi, 'pengunjung Taman Literasi per hari')}${kpi(LIT.pengunjung.pkl, 'pedagang kuliner kaki lima Blok M Square')}</div>
+    <p class="sumber">Latip dkk. (2024); Ramadhan dkk. (2025); Entas &amp; Arfarani (2019).</p></div>
+  <div class="kartu"><div class="kepala"><h2>Ritme 24 jam</h2><span class="kecil">geser jam di peta</span></div>${grafikRitme()}${legendaRitme()}</div>`;
+}
+function panelTermal() {
+  const t = LIT.tod;
+  return `${heroBlok(SK.termal, '#E4572E', 'Parameter terlemah: kawasan yang terpanggang siang hari', `Hanya <b>${nf(ST.panas.veg_cover_sat, 1)}%</b> area inti tertutup vegetasi. Sekitar <b>${nf(ST.panas.persen_panas_tinggi_800, 0)}%</b> area 800 m masuk kelas indeks panas tinggi.`)}
+  <div class="kartu putih"><div class="kepala"><h2 id="t-judul">Pukul 17:00</h2><span class="kecil">estimasi model</span></div>
+    <div class="kpi-grid"><div class="kpi"><b id="t-udara">–</b><span>suhu udara tipikal (asumsi kurva harian)</span></div><div class="kpi"><b id="t-titik">–</b><span>estimasi suhu rasa di titik terpanas</span></div></div>
+    <p class="sumber">Indeks dari tutupan vegetasi satelit, permukaan kedap, dan kegelapan permukaan. Bukan hasil ukur: validasi dengan Landsat LST atau sensor lapangan (lihat Metodologi).</p></div>
+  <div class="kartu" style="--c:#E4572E"><div class="kepala"><h2>Peneduh jalur pedestrian</h2><span class="kecil">per blok</span></div>
+    ${bullet('Jalur dengan peneduh', t.peneduh, 75)}
+    <p class="sumber">Gifarry dkk. (2022). Penyediaan peneduh ada di prioritas ke-10 AHP, padahal paling murah dan cepat.</p></div>
+  <div class="kpi-grid">
+    ${kpi(LIT.rth.jakarta, 'RTH Jakarta 2023 (target minimal 30%)', { suf: '%', d: 1 })}
+    ${kpi(ST.panas.persen_sejuk_800, 'area 800 m dengan indeks sejuk', { suf: '%', d: 1 })}
+  </div>
+  <div class="kartu"><div class="kepala"><h2>Kantong sejuk yang ada</h2></div>
+    <ol class="rek">
+      <li><i>1</i><span><b>Taman Literasi Martha Tiahahu</b>, ±400 pengunjung/hari, terhubung skybridge MRT.</span></li>
+      <li><i>2</i><span><b>Taman Sepeda</b> di Jl. Melawai Raya dan kanopi pohon Jl. Melawai IV–V.</span></li>
+      <li><i>3</i><span><b>Taman Kota Peruri</b> dan koridor hijau Jl. Panglima Polim.</span></li>
+    </ol>
+    <p class="teks" style="margin-top:10px">Rekomendasi: sambungkan kantong ini dengan <b>koridor teduh</b> (pohon + kanopi) dari MRT ke Blok M Square dan Pasaraya, jalur yang paling ramai dilalui pejalan kaki di simulasi.</p></div>`;
+}
+const PANEL = { ringkasan: panelRingkasan, aksesibilitas: panelAkses, walkability: panelWalk, variety: panelVariety, termal: panelTermal };
+
+function renderPanel() {
+  const el = $('#panel-isi'); el.innerHTML = PANEL[tab](); $('#panel').scrollTop = 0; animasiAngka(el);
+  $$('.seg button', el).forEach((b) => b.addEventListener('click', () => {
+    $$('.seg button', el).forEach((x) => x.classList.toggle('on', x === b));
+    const r = b.dataset.r, data = Object.entries(ST.mix[r]).map(([k, v], i) => [k, v, ['#C99A1E', '#D9573A', '#3E7FD0', '#3F9A5E', '#9A6BB8'][i]]);
+    $('#donut').innerHTML = donut(data); $('#donut-leg').innerHTML = data.map(([k, v, c]) => `<div class="leg-item"><i style="background:${c}"></i>${k}<s>${nf(v, 1)}%</s></div>`).join('');
+    $('#v-ket').textContent = 'radius ' + (r === 'r400' ? '400' : '800') + ' m';
+  }));
+  const hit = $('#ritme-hit', el);
+  if (hit) {
+    const setH = (e) => { const r = hit.getBoundingClientRect(); setJam(5 + clamp((e.clientX - r.left) / r.width) * 19); };
+    hit.addEventListener('pointerdown', (e) => { setH(e); hit.setPointerCapture(e.pointerId); berhenti(); });
+    hit.addEventListener('pointermove', (e) => { if (e.buttons) setH(e); });
+  }
+  updateJamUI();
+}
+
+// =============================================================
+//  Peta: transformasi, lapisan, SVG penanda
+// =============================================================
+const vp = $('#viewport'), dunia = $('#dunia'), tilt = $('#tilt');
+let view = { s: 1, tx: 0, ty: 0 }, sMin = 1;
+function fit(reset) {
+  const w = vp.clientWidth, h = vp.clientHeight; sMin = Math.max(w / 1400, h / 717);
+  if (reset) { view.s = sMin * 1.12; const [mx, my] = [620, 400]; view.tx = w / 2 - mx * view.s; view.ty = h / 2 - my * view.s; }
+  batas(); terapkan();
+}
+function batas() {
+  const w = vp.clientWidth, h = vp.clientHeight; view.s = clamp(view.s, sMin, sMin * 5);
+  view.tx = clamp(view.tx, w - 1400 * view.s, 0); view.ty = clamp(view.ty, h - 717 * view.s, 0);
+}
+function terapkan() { dunia.style.transform = `translate(${view.tx}px,${view.ty}px) scale(${view.s})`; }
+function zoomDi(fak, cx, cy) {
+  const s0 = view.s; view.s = clamp(view.s * fak, sMin, sMin * 5); const k = view.s / s0;
+  view.tx = cx - (cx - view.tx) * k; view.ty = cy - (cy - view.ty) * k; batas(); terapkan();
+}
+let animZoom = null;
+function zoomHalus(fak, cx = vp.clientWidth / 2, cy = vp.clientHeight / 2) {
+  cancelAnimationFrame(animZoom); const s0 = view.s, s1 = clamp(view.s * fak, sMin, sMin * 5), t0 = performance.now();
+  const step = (n) => { const u = clamp((n - t0) / 380), e = 1 - Math.pow(1 - u, 3); const sCur = view.s, sNext = lerp(s0, s1, e); zoomDi(sNext / sCur, cx, cy); if (u < 1) animZoom = requestAnimationFrame(step); };
+  animZoom = requestAnimationFrame(step);
+}
+vp.addEventListener('wheel', (e) => { e.preventDefault(); const r = vp.getBoundingClientRect(); zoomDi(Math.exp(-e.deltaY * .0015), e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+let seret = null;
+vp.addEventListener('pointerdown', (e) => { seret = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, gerak: false }; vp.setPointerCapture(e.pointerId); vp.classList.add('seret'); });
+vp.addEventListener('pointermove', (e) => {
+  if (seret) { const dx = e.clientX - seret.x, dy = e.clientY - seret.y; if (Math.abs(dx) + Math.abs(dy) > 3) seret.gerak = true; view.tx = seret.tx + dx; view.ty = seret.ty + dy; batas(); terapkan(); sembunyiTip(); return; }
+  hoverPeta(e);
+});
+vp.addEventListener('pointerup', () => { seret = null; vp.classList.remove('seret'); });
+vp.addEventListener('pointerleave', () => { sembunyiTip(); hoverPos = null; });
+$('#zin').onclick = () => zoomHalus(1.45); $('#zout').onclick = () => zoomHalus(1 / 1.45); $('#zreset').onclick = () => { tilt.classList.remove('miring'); $('#tbl-3d').classList.remove('on'); fit(true); };
+$('#tbl-3d').onclick = (e) => { tilt.classList.toggle('miring'); e.currentTarget.classList.toggle('on', tilt.classList.contains('miring')); sembunyiTip(); };
+let orangOn = true; $('#tbl-orang').onclick = (e) => { orangOn = !orangOn; e.currentTarget.classList.toggle('on', orangOn); };
+$$('[data-base]').forEach((b) => b.onclick = () => {
+  $$('[data-base]').forEach((x) => x.classList.toggle('on', x === b));
+  const pk = $('.peta-kartu'); pk.classList.remove('mode-sat', 'mode-osm'); if (b.dataset.base !== 'peta') pk.classList.add('mode-' + b.dataset.base);
+});
+window.addEventListener('resize', () => fit(false));
+
+// satelit
+const sb = M.sat_box; Object.assign($('#sat').style, { left: sb[0] + 'px', top: sb[1] + 'px', width: sb[2] + 'px', height: sb[3] + 'px', borderRadius: '6px' });
+
+// --- lapisan raster ---
+const lapis = $('#lapis'), lctx = lapis.getContext('2d');
+const off = document.createElement('canvas'); off.width = GW; off.height = GH; const octx = off.getContext('2d'); const img = octx.createImageData(GW, GH);
+function gambarLapis() {
+  const d = img.data; const n = GW * GH;
+  const k = radiasi(jam), malam = 1 - k;
+  for (let i = 0; i < n; i++) {
+    let c = null, a = 0;
+    if (tab === 'aksesibilitas') {
+      const m = val.akses(i), reveal = clamp((performance.now() - aksT0) / 1800) * 15;
+      if (m <= reveal) { const band = Math.floor(m / 2.5) * 2.5 / 15; c = fAkses(band + .04); a = m > 15 ? 0 : .78; if (Math.abs(m - reveal) < .35 && reveal < 15) { c = [30, 79, 184]; a = 1; } }
+    } else if (tab === 'walkability') {
+      const iso = val.iso(i);
+      if (iso <= walkR) { c = iso <= 400 ? [34, 128, 86] : [126, 196, 156]; a = iso <= 400 ? .62 : .5; if (walkR - iso < 9) { c = [12, 80, 48]; a = .95; } }
+      else { c = [120, 116, 110]; a = .28; }
+    } else if (tab === 'variety') {
+      if (varMode === 'lu') { const l = val.lu(i); if (LU[l] && l !== 1) { c = hex(LU[l][1]); a = .5; } }
+      else { c = fMix(val.mix(i)); a = .8; }
+    } else if (tab === 'termal') {
+      const h = val.panas(i), eff = h * (0.25 + .75 * k) + (1 - k) * .12 + (k > 0 ? 0 : -.05);
+      c = fPanas(clamp(eff)); a = .72 + .1 * k;
+    } else { const l = val.lu(i); if (LU[l] && l !== 1) { c = hex(LU[l][1]); a = .16; } }
+    const j = i * 4;
+    if (c) { d[j] = c[0]; d[j + 1] = c[1]; d[j + 2] = c[2]; d[j + 3] = a * 255; } else { d[j + 3] = 0; }
+  }
+  octx.putImageData(img, 0, 0);
+  lctx.clearRect(0, 0, 1400, 717); lctx.imageSmoothingEnabled = true; lctx.imageSmoothingQuality = 'high'; lctx.drawImage(off, 0, 0, 1400, 717);
+}
+
+// --- SVG penanda ---
+const svg = $('#svg');
+function gambarSVG() {
+  const [ox, oy] = M.origin_mrt, r4 = 400 / MPP, r8 = 800 / MPP;
+  const tWarna = TABS.find((t) => t.id === tab).warna;
+  let s = `<defs><filter id="bay" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-opacity=".35"/></filter></defs>`;
+  if (tab === 'walkability' || tab === 'ringkasan') {
+    s += `<circle cx="${ox}" cy="${oy}" r="${r8}" fill="none" stroke="#1F1F1F" stroke-width="1.6" stroke-dasharray="7 6" opacity=".55"/>
+          <circle cx="${ox}" cy="${oy}" r="${r4}" fill="none" stroke="#1F1F1F" stroke-width="1.6" stroke-dasharray="7 6" opacity=".75"/>
+          <g font-family="Nunito" font-weight="900" font-size="12"><rect x="${ox + r4 * .7 - 30}" y="${oy - r4 * .7 - 11}" width="60" height="20" rx="10" fill="#1F1F1F"/><text x="${ox + r4 * .7}" y="${oy - r4 * .7 + 3}" text-anchor="middle" fill="#fff">400 m</text>
+          <rect x="${ox + r8 * .55 - 30}" y="${oy - r8 * .55 + 30}" width="60" height="20" rx="10" fill="#1F1F1F" opacity=".8"/><text x="${ox + r8 * .55}" y="${oy - r8 * .55 + 44}" text-anchor="middle" fill="#fff">800 m</text></g>`;
+  }
+  const tampil = tab === 'ringkasan' || tab === 'aksesibilitas' || tab === 'walkability';
+  for (const t of DATA.transit) {
+    const mrt = t.jenis === 'MRT', w = mrt ? '#C2441F' : '#2F6BD8', besar = tab === 'aksesibilitas' || mrt;
+    if (!tampil && !mrt) continue;
+    s += `<g class="pin" filter="url(#bay)">
+      <circle cx="${t.x}" cy="${t.y}" r="${mrt ? 12 : 9}" fill="${w}" opacity=".22"><animate attributeName="r" values="${mrt ? 10 : 7};${mrt ? 26 : 18};${mrt ? 10 : 7}" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".35;0;.35" dur="2.4s" repeatCount="indefinite"/></circle>
+      <circle cx="${t.x}" cy="${t.y}" r="${mrt ? 8 : 6}" fill="${w}" stroke="#fff" stroke-width="2.5"/>
+      ${besar ? `<text x="${t.x + 13}" y="${t.y + 4}" font-family="Nunito" font-weight="900" font-size="12.5" fill="#1F1F1F" stroke="#fff" stroke-width="3.5" paint-order="stroke">${t.nama}</text>` : ''}</g>`;
+  }
+  const LBL = [['Blok M Square', 700, 450], ['Pasaraya', 875, 470], ['Plaza Blok M', 455, 440], ['Taman Literasi', 548, 355], ['M Bloc', 548, 230], ['Little Tokyo', 580, 425], ['Taman Sepeda', 715, 578]];
+  if (tab === 'variety' || tab === 'termal' || tab === 'ringkasan') for (const [n, x, y] of LBL) s += `<text x="${x}" y="${y}" text-anchor="middle" font-family="Nunito" font-weight="900" font-size="12" fill="#1F1F1F" stroke="#fff" stroke-width="3.5" paint-order="stroke" opacity=".9">${n}</text>`;
+  svg.innerHTML = s;
+}
+
+// --- legenda ---
+function gambarLegenda() {
+  const L = $('#legenda'); let h = '';
+  if (tab === 'aksesibilitas') h = `<h3>Waktu jalan ke transit terdekat</h3><div class="leg-skala" style="background:${gradCSS(RAMP.akses)}"></div><div class="leg-teks"><span>0 mnt</span><span>5</span><span>10</span><span>15+ mnt</span></div><p class="kecil" style="margin-top:6px">Jarak lewat jaringan jalan, 80 m/menit.</p>`;
+  else if (tab === 'walkability') h = `<h3>Jangkauan jalan kaki dari MRT Blok M</h3><div class="leg-item"><i style="background:#228056"></i>≤400 m via jaringan (±5 mnt)</div><div class="leg-item"><i style="background:#7EC49C"></i>400–800 m via jaringan (±10 mnt)</div><div class="leg-item"><i style="background:#B9B5AF"></i>Belum terjangkau<s id="leg-r">0 m</s></div><div class="leg-item"><i style="background:none;border:2px dashed #1F1F1F"></i>Lingkaran radius 400 / 800 m</div><p class="kecil" style="margin-top:6px">Selisih antara lingkaran dan area hijau = jalan memutar.</p>`;
+  else if (tab === 'variety') h = `<h3>Keragaman fungsi</h3><div class="seg" style="margin:4px 0 8px"><button type="button" data-v="lu" class="${varMode === 'lu' ? 'on' : ''}">Guna lahan</button><button type="button" data-v="mix" class="${varMode === 'mix' ? 'on' : ''}">Indeks campuran</button></div>` +
+    (varMode === 'lu' ? Object.entries(LU).filter(([k]) => k !== '1').map(([, [n, c]]) => `<div class="leg-item"><i style="background:${c}"></i>${n}</div>`).join('') : `<div class="leg-skala" style="background:${gradCSS(RAMP.mix)}"></div><div class="leg-teks"><span>1 fungsi</span><span>campuran merata</span></div><p class="kecil" style="margin-top:6px">Entropi Shannon dalam jendela 150 m.</p>`);
+  else if (tab === 'termal') h = `<h3>Indeks panas permukaan (estimasi)</h3><div class="leg-skala" style="background:${gradCSS(RAMP.panas)}"></div><div class="leg-teks"><span>sejuk</span><span>hangat</span><span>sangat panas</span></div><p class="kecil" style="margin-top:6px">Intensitas mengikuti jam. Geser waktu di bawah.</p>`;
+  else h = `<h3>Kawasan TOD Blok M</h3><div class="leg-item"><i style="background:#C2441F;border-radius:50%"></i>Stasiun MRT</div><div class="leg-item"><i style="background:#2F6BD8;border-radius:50%"></i>Terminal &amp; halte TransJakarta</div><div class="leg-item"><i style="background:#fff;box-shadow:0 0 0 2px #C2441F inset;border-radius:50%"></i>Pejalan kaki (simulasi)</div><div class="leg-item"><i style="background:none;border:2px dashed #1F1F1F"></i>Radius 400 / 800 m</div>`;
+  L.innerHTML = h;
+  $$('[data-v]', L).forEach((b) => b.onclick = () => { varMode = b.dataset.v; gambarLegenda(); gambarLapis(); });
+}
+
+// =============================================================
+//  Pejalan kaki (simulasi agen)
+// =============================================================
+const fx = $('#fx'), fctx = fx.getContext('2d'); fctx.scale(2, 2);
+const JALUR = DATA.paths.map((p) => { const pts = p.p; const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])); return { s: p.s, pts, cum, L: cum[cum.length - 1] }; }).filter((j) => j.L > 20);
+const agen = [];
+function agenBaru() {
+  const j = JALUR[(Math.random() * JALUR.length) | 0];
+  const malam = jam >= 19; const balik = Math.random() < (malam ? .55 : .3);
+  return { j, d: 0, v: (1.1 + Math.random() * .5) / MPP, balik, hidup: true, fase: Math.random() * 6 };
+}
+function posisi(a) {
+  const { pts, cum, L } = a.j; let d = a.balik ? L - a.d : a.d; d = clamp(d, 0, L);
+  let i = 1; while (i < cum.length - 1 && cum[i] < d) i++;
+  const u = (d - cum[i - 1]) / (cum[i] - cum[i - 1] || 1); return [lerp(pts[i - 1][0], pts[i][0], u), lerp(pts[i - 1][1], pts[i][1], u)];
+}
+let tAkhir = performance.now();
+function langkahAgen(dt) {
+  const target = Math.round(30 + 330 * totalAktif(jam) / MAX_AKTIF);
+  while (agen.length < target && Math.random() < .5) agen.push(agenBaru());
+  const kec = 26; // percepatan simulasi
+  for (const a of agen) { a.d += a.v * dt * kec; if (a.d >= a.j.L) a.hidup = false; }
+  for (let i = agen.length - 1; i >= 0; i--) if (!agen[i].hidup) { if (agen.length > target) agen.splice(i, 1); else agen[i] = agenBaru(); }
+  fctx.clearRect(0, 0, 1400, 717);
+  if (!orangOn) return;
+  const w = TABS.find((t) => t.id === tab).warna;
+  fctx.lineWidth = 1.4;
+  for (const a of agen) {
+    const [x, y] = posisi(a);
+    const fade = clamp(a.d / 40) * clamp((a.j.L - a.d) / 40);
+    fctx.globalAlpha = .9 * fade;
+    fctx.beginPath(); fctx.arc(x, y, 2.6, 0, 7); fctx.fillStyle = '#fff'; fctx.fill(); fctx.strokeStyle = w; fctx.stroke();
+  }
+  fctx.globalAlpha = 1;
+}
+
+// =============================================================
+//  Tooltip peta
+// =============================================================
+const tip = $('#tip'); let hoverPos = null;
+function tampilTip(html, x, y) { tip.innerHTML = html; tip.classList.add('on'); const w = tip.offsetWidth, h = tip.offsetHeight; tip.style.left = Math.min(innerWidth - w - 10, x + 14) + 'px'; tip.style.top = Math.max(10, y - h - 12) + 'px'; }
+function sembunyiTip() { tip.classList.remove('on'); }
+function hoverPeta(e) {
+  if (tilt.classList.contains('miring')) return;
+  const r = vp.getBoundingClientRect(); const wx = (e.clientX - r.left - view.tx) / view.s, wy = (e.clientY - r.top - view.ty) / view.s;
+  if (wx < 0 || wy < 0 || wx >= 1400 || wy >= 717) return sembunyiTip();
+  hoverPos = [e.clientX, e.clientY, wx, wy]; isiTip();
+}
+function isiTip() {
+  if (!hoverPos) return; const [cx, cy, wx, wy] = hoverPos;
+  const i = Math.floor(wy / CELL) * GW + Math.floor(wx / CELL); const l = val.lu(i);
+  const fungsi = LU[l] ? LU[l][0] : 'Jalan';
+  let h = `<span class="tg">${fungsi}</span><br>`;
+  if (tab === 'aksesibilitas') h += `<b>${nf(val.akses(i), 1)} menit</b> jalan ke transit terdekat<br><span class="tg">±${nf(val.akses(i) * 80, 0)} m via jaringan</span>`;
+  else if (tab === 'walkability') h += `Skor walkability titik <b>${nf(val.walk(i), 0)}</b>/100<br><span class="tg">${nf(val.iso(i), 0)} m jalan dari MRT Blok M (±${nf(val.iso(i) / 80, 0)} mnt)</span>`;
+  else if (tab === 'variety') h += `Indeks campuran <b>${nf(val.mix(i), 2)}</b><br><span class="tg">${val.mix(i) > .75 ? 'sangat beragam' : val.mix(i) > .5 ? 'cukup beragam' : 'didominasi satu fungsi'}</span>`;
+  else if (tab === 'termal') { const t = suhuRasa(val.panas(i)); h += `Estimasi suhu rasa <b>≈${nf(t, 1)} °C</b> pukul ${fmtJam(jam)}<br><span class="tg">indeks panas ${nf(val.panas(i) * 100, 0)}/100 · ${val.panas(i) > .66 ? 'panas' : val.panas(i) > .33 ? 'hangat' : 'sejuk'}</span>`; }
+  else h += `${nf(val.akses(i), 1)} mnt ke transit · skor jalan ${nf(val.walk(i), 0)}<br><span class="tg">campuran ${nf(val.mix(i), 2)} · panas ${nf(val.panas(i) * 100, 0)}/100</span>`;
+  tampilTip(h, cx, cy);
+}
+document.addEventListener('pointerover', (e) => { const t = e.target.closest('[data-tip]'); if (t) tampilTip(t.dataset.tip, e.clientX, e.clientY); });
+document.addEventListener('pointerout', (e) => { if (e.target.closest('[data-tip]')) sembunyiTip(); });
+document.addEventListener('pointermove', (e) => { const t = e.target.closest('[data-tip]'); if (t) tampilTip(t.dataset.tip, e.clientX, e.clientY); });
+
+// =============================================================
+//  Waktu
+// =============================================================
+const fmtJam = (h) => { const hh = Math.floor(h) % 24, mm = Math.floor((h % 1) * 60); return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0'); };
+const suhuRasa = (idx) => suhuUdara(jam) + radiasi(jam) * (idx * 9 - 1.5) + (1 - radiasi(jam)) * idx * 1.2;
+let main = false, tGambar = 0;
+function setJam(h) { jam = h; $('#slider').value = h; updateJamUI(); if (tab === 'termal') gambarLapis(); }
+function updateJamUI() {
+  $('#jam').innerHTML = fmtJam(jam) + '<small>simulasi harian</small>';
+  const dom = RITME.map((r) => r.f(jam)); const imax = dom.indexOf(Math.max(...dom));
+  $('#waktu-info').innerHTML = tab === 'termal' ? `<b>≈${nf(suhuUdara(jam), 1)} °C udara</b><span class="kecil">${radiasi(jam) > .7 ? 'puncak panas' : radiasi(jam) > .2 ? 'matahari aktif' : 'tanpa radiasi matahari'}</span>`
+    : `<b>${RITME[imax].k}</b><span class="kecil">aktivitas dominan · ${Math.round(100 * totalAktif(jam) / MAX_AKTIF)}% dari puncak</span>`;
+  const kur = $('#ritme-kursor'); if (kur) { const g = $('#g-ritme'); const lebar = +g.getAttribute('viewBox').split(' ')[2]; const x = 26 + (jam - 5) / 19 * (lebar - 40); kur.setAttribute('x1', x); kur.setAttribute('x2', x); }
+  RITME.forEach((r, i) => { const el = $('#rv' + i); if (el) el.textContent = Math.round(100 * Math.min(1, r.f(jam))) + '%'; });
+  if ($('#t-judul')) { $('#t-judul').textContent = 'Pukul ' + fmtJam(jam); $('#t-udara').innerHTML = '≈' + nf(suhuUdara(jam), 1) + '<small> °C</small>'; $('#t-titik').innerHTML = '≈' + nf(suhuRasa(1), 1) + '<small> °C</small>'; }
+  const mk = $('#ritme-mini'); const cx = (jam - 5) / 19 * 240; const c = $('#mini-kursor', mk); if (c) { c.setAttribute('x', cx - 1); }
+  if (hoverPos) isiTip();
+}
+function gambarRitmeMini() {
+  let s = ''; const y = (v) => 36 - v / MAX_AKTIF * 32;
+  let d = 'M0 38'; for (let h = 5; h <= 24.01; h += .2) d += `L${((h - 5) / 19 * 240).toFixed(1)} ${y(totalAktif(h)).toFixed(1)}`; d += 'L240 38Z';
+  s += `<path d="${d}" fill="#C2441F" opacity=".14"/>`;
+  let d2 = ''; for (let h = 5; h <= 24.01; h += .2) d2 += (d2 ? 'L' : 'M') + `${((h - 5) / 19 * 240).toFixed(1)} ${y(totalAktif(h)).toFixed(1)}`; s += `<path d="${d2}" fill="none" stroke="#C2441F" stroke-width="1.2" vector-effect="non-scaling-stroke" opacity=".7"/>`;
+  for (const h of [6, 9, 12, 15, 18, 21]) s += `<line x1="${(h - 5) / 19 * 240}" x2="${(h - 5) / 19 * 240}" y1="0" y2="38" stroke="#1F1F1F" opacity=".08" vector-effect="non-scaling-stroke"/>`;
+  s += `<rect id="mini-kursor" x="0" y="0" width="0" height="0"/>`;
+  $('#ritme-mini').innerHTML = s;
+}
+$('#slider').addEventListener('input', (e) => { berhenti(); setJam(+e.target.value); });
+function berhenti() { main = false; $('#ikon-main').innerHTML = '<path d="M6 4l14 8-14 8z"/>'; }
+$('#main').onclick = () => { main = !main; $('#ikon-main').innerHTML = main ? '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>' : '<path d="M6 4l14 8-14 8z"/>'; };
+
+// =============================================================
+//  Ganti tab
+// =============================================================
+function gantiTab(id) {
+  if (!TABS.some((t) => t.id === id)) id = 'ringkasan';
+  tab = id; const t = TABS.find((x) => x.id === id);
+  document.documentElement.style.setProperty('--c', t.warna);
+  $$('.tab').forEach((b) => b.classList.toggle('on', b.dataset.tab === id));
+  lapis.style.opacity = 0;
+  setTimeout(() => { walkT0 = aksT0 = performance.now(); walkR = 0; gambarLapis(); gambarSVG(); gambarLegenda(); lapis.style.opacity = 1; }, 220);
+  renderPanel();
+  if (id === 'termal' && !main) animasiJam(13.5);
+}
+function animasiJam(tgt) { const h0 = jam, t0 = performance.now(); const st = (n) => { const u = clamp((n - t0) / 1400), e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2; setJam(lerp(h0, tgt, e)); if (u < 1 && !main) requestAnimationFrame(st); }; requestAnimationFrame(st); }
+window.addEventListener('hashchange', () => gantiTab(location.hash.slice(1)));
+
+// =============================================================
+//  Loop utama
+// =============================================================
+function loop(now) {
+  const dt = Math.min(.05, (now - tAkhir) / 1000); tAkhir = now;
+  if (main) { let h = jam + dt * 1.1; if (h > 24) h = 5; setJam(h); }
+  if (tab === 'walkability') { const u = clamp((now - walkT0) / 2600); const nr = 800 * (1 - Math.pow(1 - u, 3)); if (nr !== walkR) { walkR = nr; gambarLapis(); const lr = $('#leg-r'); if (lr) lr.textContent = nf(walkR, 0) + ' m'; } }
+  if (tab === 'aksesibilitas' && now - aksT0 < 1900) gambarLapis();
+  langkahAgen(dt);
+  requestAnimationFrame(loop);
+}
+
+// =============================================================
+//  Mulai
+// =============================================================
+$('#daftar-sumber').innerHTML = SUMBER.map((s) => `<li>${s}</li>`).join('');
+$('#tbl-metode').onclick = () => { $('#modal').hidden = false; $('#tutup').focus(); };
+$('#tutup').onclick = () => { $('#modal').hidden = true; };
+$('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal') $('#modal').hidden = true; });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('#modal').hidden = true; });
+renderNav(); gambarRitmeMini();
+const base = $('#base');
+const siap = () => { fit(true); gantiTab(location.hash.slice(1) || 'ringkasan'); $('#memuat').style.opacity = 0; setTimeout(() => $('#memuat').remove(), 500); requestAnimationFrame(loop); };
+if (base.complete) siap(); else { base.onload = siap; base.onerror = siap; }
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "blok-m-public-space-analysis",
+  "version": "4.0.0",
+  "private": true,
+  "description": "Public Space Analysis · BLOK M: peta 3D analisis ruang publik dengan kerangka Place Diagram PPS, data OpenStreetMap (OSMnx), Three.js, Apache ECharts, anime.js",
+  "scripts": {
+    "build": "esbuild src/app.js --bundle --format=iife --minify --target=es2020 --alias:three=./src/vendor/three.module.min.js --outfile=app.js",
+    "serve": "python -m http.server 8000"
+  },
+  "dependencies": {
+    "echarts": "^5.6.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}
