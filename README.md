@@ -37,16 +37,6 @@ Peta 3D interaktif untuk menganalisis ruang publik **kawasan inti Blok M** (±29
   - Kendaraan hanya melewati jalan kendaraan (tidak menembus taman) dan tetap di dalam batas peta. Lajur menyesuaikan kelas jalan.
 - **Ringan**: data berat (medan angin, peta OSM, citra satelit) dimuat hanya saat dibutuhkan. Muatan awal ±3,3 MB, sebelumnya ±6,2 MB. Kualitas grafis otomatis turun ke mode hemat bila perangkat berat; bisa diatur di menu Lapisan 3D.
 
-## Menjalankan
-
-Klik dua kali `index.html`. Tidak perlu server, karena data dan gambar sudah dibundel. `data_angin.js`, `aset_peta.js`, dan `aset_satelit.js` dimuat otomatis saat lensa atau peta dasarnya dipilih. Tambahkan `?lite` di URL untuk perangkat lemah.
-
-## GitHub Pages
-
-1. Unggah seluruh isi folder ini ke repo (`index.html` di root).
-2. **Settings → Pages → Deploy from a branch**, branch `main`, folder `/ (root)`.
-3. Tautan langsung ke lensa memakai hash, misalnya `#pakses`, `#bising`, `#muka`.
-
 ## Mengubah kode
 
 ```sh
